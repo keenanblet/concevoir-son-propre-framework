@@ -26,9 +26,17 @@ class HomeController
 
     public function index(Request $request): Response
     {
-        $html = $this->view->renderWithLayout('home/index', [
-            'pageTitle' => 'Accueil',
-        ]);
+        $contacts = [
+            ['id' => 1, 'nom' => 'Rafoul', 'prenom' => 'John', 'mail' => 'john.raful@example.com'],
+            ['id' => 2, 'nom' => 'Comprendre MVC', 'prenom' => 'Jane', 'mail' => 'jane.comprendre@example.com'],
+            ['id' => 3, 'nom' => 'Les design patterns', 'prenom' => 'Bob', 'mail' => 'bob.design@example.com'],
+        ];
+        $html = '<h1>Contacts</h1><ul>';
+        foreach ($contacts as $a) {
+            $html .= "{$a['nom']} {$a['prenom']}</a> - {$a['mail']}</li> <a href=\"/contacts/{$a['id']}/{$a['nom']}/{$a['prenom']}\"> Voir</a><br>";
+        }
+        $html .= '</ul>';
         return Response::html($html);
     }
+
 }
