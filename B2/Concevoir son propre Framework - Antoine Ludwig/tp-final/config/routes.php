@@ -13,8 +13,8 @@
 use App\Response;
 use App\Request;
 
-use Controllers\ArticleController;
 use Controllers\ContactController;
+use Controllers\HomeController;
 
 
 
@@ -81,6 +81,8 @@ use Controllers\ContactController;
 
 // A décommenter pour utiliser les controllers. Commenter les routes correspondant au dessus.
 $router->get('/contacts',      [ContactController::class, 'index']);
-$router->get('/contacts/{id}/{nom}/{prenom}', [ContactController::class, 'show']);
+$router->get('/contacts/create', [ContactController::class, 'create']);
+$router->get('/contacts/{id}', [ContactController::class, 'show']);
 $router->post('/articles',     [ContactController::class, 'add']);
 $router->get('/', [Controllers\HomeController::class, 'index']);
+$router->post('/contacts', [ContactController::class, 'store']);
