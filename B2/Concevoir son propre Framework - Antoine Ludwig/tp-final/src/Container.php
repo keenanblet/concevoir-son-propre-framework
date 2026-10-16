@@ -2,13 +2,7 @@
 
 // Le conteneur d'injection de dépendances — un registre central
 // qui sait comment créer chaque "service" (objet partagé) de l'application.
-//
-// Sans conteneur, chaque contrôleur crée ses dépendances lui-même :
-//   $view = new View(__DIR__ . '/../../views');  ← chemin en dur, couplage fort
-//
-// Avec conteneur, les dépendances sont déclarées une seule fois
-// et fournies automatiquement à ceux qui en ont besoin :
-//   $view = $container->get('view');  ← le conteneur sait comment la créer
+
 
 namespace App;
 

@@ -3,21 +3,11 @@
 // Le moteur de vues qui sert à séparer le HTML du code PHP.
 // Au lieu que les contrôleurs construisent le HTML dans des chaînes,
 // ils préparent les données et les passent à un fichier template.
-// C'est notre version simplifiée de Twig chez Symfony.
-//
-// Twig :     {{ title }}         → échappement automatique
-// Notre vue : <?= e($title) ? >  → échappement manuel avec e()
-//
-// Le principe est le même : le contrôleur donne les données,
-// le template les affiche sans contenir de logique métier.
-
 namespace App;
 
 class View
 {
-    // Le chemin absolu vers le dossier qui contient les templates.
-    // Ex : '/home/antoine/micro-framework/views'
-    // Tous les chemins de vues seront relatifs à ce dossier.
+    // Le chemin absolu vers le dossier qui contient les templates.    
     private string $viewsPath;
 
     // Le constructeur reçoit le chemin du dossier des vues.

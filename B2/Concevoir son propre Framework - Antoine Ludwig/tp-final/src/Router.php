@@ -10,25 +10,6 @@ namespace App;
 
 class Router
 {
-    // La table de routage: un tableau à deux niveaux :
-    // Premier niveau : la méthode HTTP (GET, POST, PUT, DELETE)
-    // Deuxième niveau : le pattern d'URL → le handler (code à exécuter)
-    //
-    // Exemple après enregistrement de 3 routes :
-    // $this->routes = [
-    //     'GET'  => [
-    //         '/'        => function($request) { ... },
-    //         '/about'   => function($request) { ... },
-    //     ],
-    //     'POST' => [
-    //         '/contact' => function($request) { ... },
-    //     ],
-    // ];
-    //
-    // sans ce double niveau, si on a deux routes GET /articles
-    // et POST /articles elles s'écraseraient et on aurait qu'une route au lieu
-    // de 2 différentes 
-
     /** @var array<string, array<string, callable>> */
     private array $routes = [];
 
@@ -69,8 +50,6 @@ class Router
         // ── Vérification rapide ──────────────────────────────────
         // Est-ce qu'il existe au moins une route pour cette méthode ?
         // Si personne n'a déclaré de route GET, inutile de chercher.
-        // Exemple : si $this->routes ne contient que 'POST',
-        // et que la requête est GET → 404 immédiat.
         if (!isset($this->routes[$method])) {
             return Response::html('<h1>404 — Page non trouvée</h1>', 404);
         }
@@ -80,44 +59,7 @@ class Router
         // $pattern = le modèle d'URL déclaré ('/articles/{id}')
         // $handler = le code à exécuter (closure ou [Classe, méthode])
         foreach ($this->routes[$method] as $pattern => $handler) {
-
-            // ── Transformer le pattern en expression régulière ───
-            //
-            // Le problème : l'URI reçue est '/articles/42'
-            // mais le pattern déclaré est '/articles/{id}'.
-            // On ne peut pas comparer avec === parce que {id}
-            // doit matcher n'importe quelle valeur.
-            //
-            // La solution : transformer {id} en regex qui capture la valeur.
-            //
-            // preg_replace cherche tous les {mot} dans le pattern
-            // et les remplace par une capture nommée :
-            //
-            //   Pattern avant :  /articles/{id}
-            //   Regex après   :  /articles/(?P<id>[^/]+)
-            //
-            //   Pattern avant :  /users/{userId}/posts/{postId}
-            //   Regex après   :  /users/(?P<userId>[^/]+)/posts/(?P<postId>[^/]+)
-            //
-            // Décortiquons la regex de remplacement :
-            //   #\{(\w+)\}#     → cherche { suivi de lettres/chiffres, suivi de }
-            //                      \w+ = un ou plusieurs caractères "mot" (a-z, 0-9, _)
-            //                      les parenthèses capturent le nom (id, userId...)
-            //
-            //   (?P<$1>[^/]+)   → groupe de capture nommé
-            //                      $1 = le nom capturé (id, userId...)
-            //                      [^/]+ = un ou plusieurs caractères qui ne sont PAS un /
-            //                      (pour ne pas déborder sur le segment suivant)
-
             $regex = preg_replace('#\{(\w+)\}#', '(?P<$1>[^/]+)', $pattern);
-
-            // Ajouter les ancres de début (^) et fin ($) :
-            //   /articles/(?P<id>[^/]+)  →  #^/articles/(?P<id>[^/]+)$#
-            //
-            // Sans les ancres, /articles/42/edit matcherait /articles/{id}
-            // parce que la regex trouverait /articles/42 au début.
-            // Le $ force la fin de l'URI : il faut que tout corresponde.
-            // Les # sont les délimiteurs de la regex PHP (au lieu de /).
             $regex = '#^' . $regex . '$#';
 
             // ── Tester si l'URI correspond ───────────────────────
@@ -162,29 +104,13 @@ class Router
                 //   function (Request $req, array $params) {
                 //       $id = $params['id'];  // '42'
                 //   }
-
-
-                // Décommenter si pas de gestion des controllers.A commenter pour gérer les controllers
-                //$result = $handler($request, $params);
-
-
-                // Bloc à décommenter si gestion des controllers
                 if (is_array($handler)) {
                     [$controllerClass, $method] = $handler;
-                    $controller = new $controllerClass();
+                    $controller = $container ? new $controllerClass($container) : new $controllerClass();
                     $result = $controller->$method($request, $params ?? []);
                 } else {
                     $result = $handler($request, $params ?? []);
                 }
-
-                // Bloc à commenter si pas de Container.php. Si Container.php commenter le bloc au dessus.
-                // if (is_array($handler)) {
-                //     [$controllerClass, $method] = $handler;
-                //     $controller = $container ? new $controllerClass($container) : new $controllerClass();
-                //     $result = $controller->$method($request, $params ?? []);
-                // } else {
-                //     $result = $handler($request, $params ?? []);
-                // }
 
                 // Même logique que la version statique :
                 // si le handler retourne déjà une Response, on la prend.

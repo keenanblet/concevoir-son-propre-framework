@@ -5,14 +5,15 @@ namespace Controllers;
 use App\Request;
 use App\Response;
 use App\View;
+use App\Container;
 
 class ContactController
 {
     private View $view;
 
-    public function __construct()
+    public function __construct(Container $container)
     {
-        $this->view = new View(__DIR__ . '/../../views');
+        $this->view = $container->get('view');
     }
     // ...
 
@@ -45,13 +46,45 @@ class ContactController
         $title = $request->input('title', 'Sans titre');
         return Response::json(['created' => true, 'title' => $title], 201);
     }
-    public function delete(Request $request, int $id): Response
+    public function delete(Request $request, array $params): Response
     {
-        $contacts =
+        $id = (int) $params['id'];
+        $cheminFichier = __DIR__ . '/../../data/data.json';
+        $contacts = json_decode(file_get_contents($cheminFichier), true) ?? [];
+        $contacts = array_values(array_filter($contacts, fn($c) => $c['id'] !== $id));
+        file_put_contents($cheminFichier, json_encode($contacts));
+        return Response::redirect('/');
     }
     public function create(Request $request): Response
     {
         return Response::html($this->view->renderWithLayout('contacts/create')); 
+    }
+    public function edit(Request $request, array $params): Response
+    {
+        $id = (int) $params['id'];
+        $contacts = json_decode(file_get_contents(__DIR__ . '/../../data/data.json'), true) ?? [];
+        foreach ($contacts as $c) {
+            if ($c['id'] === $id) {
+                return Response::html($this->view->renderWithLayout('contacts/create', ['contact' => $c]));
+            }
+        }
+        return Response::html('<p>Contact non trouvé</p>', 404);
+    }
+    public function update(Request $request, array $params): Response
+    {
+        $id = (int) $params['id'];
+        $cheminFichier = __DIR__ . '/../../data/data.json';
+        $contacts = json_decode(file_get_contents($cheminFichier), true) ?? [];
+        foreach ($contacts as &$c) {
+            if ($c['id'] === $id) {
+                $c['nom'] = trim((string) $request->input('nom', $c['nom']));
+                $c['prenom'] = trim((string) $request->input('prenom', $c['prenom']));
+                $c['mail'] = trim((string) $request->input('mail', $c['mail']));
+            }
+        }
+        unset($c);
+        file_put_contents($cheminFichier, json_encode($contacts));
+        return Response::redirect('/');
     }
     public function store(Request $request): Response
     {

@@ -5,12 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= e($pageTitle ?? 'Mon Framework') ?></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body {
-            font-family: sans-serif;
-            max-width: 800px;
-            margin: 2rem auto;
-        }
 
         nav {
             background: #2E74B5;
@@ -35,14 +31,12 @@
 <body>
     <nav>
         <a href="/">Accueil</a>
-        <a href="/articles">Articles</a>
-        <a href="/about">À propos</a>
     </nav>
-    <main>
+    <main class="container py-4">
         <?= $content ?>
     </main>
-    <footer>
-        <p>&copy; <?= date('Y') ?> — Micro-framework pédagogique</p>
+    <footer class="container">
+        <p>&copy; <?= date('Y') ?> — Liste de contacts</p>
     </footer>
 </body>
 

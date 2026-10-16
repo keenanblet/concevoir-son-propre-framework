@@ -4,8 +4,6 @@
 // Au lieu d'appeler directement echo, header() et http_response_code()
 // (les fonctions PHP natives), on prépare tout dans un objet
 // et on envoie d'un coup à la fin.
-// Équivalent simplifié de Symfony\Component\HttpFoundation\Response.
-
 namespace App;
 
 class Response
